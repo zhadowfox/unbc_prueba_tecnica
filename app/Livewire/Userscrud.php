@@ -14,6 +14,7 @@ class Userscrud extends Component
     public $names;
     public $lastnames;
     public $phone_number;
+    #[On('render')]
     public function render()
     {
         $this->users = user::where('names', 'like', '%' . $this->search . '%')
@@ -49,24 +50,62 @@ class Userscrud extends Component
             $dataToUpdate['phone_number'] = $this->phone_number;
         }
         if (!empty($this->password)) {
-            $dataToUpdate['password'] = $this->password;;
+            $dataToUpdate['password'] = bcrypt($this->password);
         }
         try {
             $this->user->update($dataToUpdate);
-            $this->dispatch("render");
+            $this->dispatch('task-done', ['message' => 'Usuario actualizado.']);
         } catch (Exception $e) {
             error_log($e->getMessage());
             throw new Exception("Error al guardar el usuario: " . $e->getMessage());
         }
     }
+    public function inactivateUserModal($id){
+        $user = User::findOrFail($id);
+        if ($user->active==0){
+            $confirmButtonText="Activar";
+            $confirmButtonColor="#2A4BA0";
+        }else{
+            $confirmButtonText="Desactivar";
+            $confirmButtonColor="#4f4f4f";
+        }
+        $this->dispatch('inactivate-warning',[
+            'names'=>$user->names,
+            'lastnames'=>$user->lastnames,
+            'id'=>$user->id,
+            'confirmButtonText'=>$confirmButtonText,
+            'confirmButtonColor'=> $confirmButtonColor
+            ]);
+    }
+    #[On('inactivate-confirmed')]
+    public function inactivateUser($id){
+        try {
+            $user = User::findOrFail($id);
+            $user->active=!$user->active;
+            $user->save();
+            $this->dispatch('task-done', ['message' => 'Usuario inactivado.']);
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            $this->dispatch('userDeleteFailed', ['message' => 'Error al desactivar el usuario.','title'=>'Desactivado']);
+    }
+    }
+    #[On('delete-confirmed')]
     public function delete($id){
         try {
             $user = User::findOrFail($id);
             $user->delete();
-            $this->dispatch('render');
+            $this->dispatch('task-done', ['message' => 'Usuario eliminado.','title'=>'Eliminado']);
         } catch (Exception $e) {
             error_log($e->getMessage());
             $this->dispatch('userDeleteFailed', ['message' => 'Error al eliminar el usuario.']);
     }
 }
+    public function deleteUserModal($id){
+        $user = User::findOrFail($id);
+        $this->dispatch('delete-warning',[
+            'names'=>$user->names,
+            'lastnames'=>$user->lastnames,
+            'id'=>$user->id
+            ]);
+    }
 }

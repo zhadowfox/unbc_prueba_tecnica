@@ -1,13 +1,13 @@
 <div>
-<div class="mt-8 grid">
-    <h2 class="text-5xl text-white text-center">Lista de usuarios</h2>
-    <div class="flex">
+<div class="mt-8 grid relative rounded-xl overflow-auto">
+    <h2 class="md:text-5xl text-white text-center text-lg">Lista de usuarios</h2>
+    <div class="md:flex grid my-3">
     <label for="search">
         <span class="text-white">Buscar</span>
         <input wire:model="search" wire:model.live="search" type="text" class="rounded-md p-1 ms-4" >
     </label>
     <button 
-        class="bg-white text-dark rounded-md py-1 ps-3 pe-3 ms-auto hover:bg-slate-800 hover:text-white"
+        class="bg-white text-dark rounded-md py-1 ps-3 pe-3 mt-3 md:mt-0 md:ms-auto hover:bg-slate-800 hover:text-white"
         data-modal-target="modal-create-user" 
         data-modal-toggle="modal-create-user" 
         type="button">
@@ -15,40 +15,53 @@
         <ion-icon name="add-outline"></ion-icon>
     </button>
     </div>
-    <table class="w-full divide-y divide-gray-200 rounded shadow-md mt-8">
-        <thead class="bg-gray-500 text-white">
-            <tr>
-                <td class="px-4 py-4 whitespace-nowrap">Nombres</td>
-                <td class="px-4 py-4 whitespace-nowrap">Apellidos</td>
-                <td class="px-4 py-4 whitespace-nowrap">Telefono</td>
-                <td class="px-4 py-4 whitespace-nowrap">Correo</td>
-                <td class="px-4 py-4 whitespace-nowrap">Acciones</td>
-            </tr>
-        </thead>
-        <tbody class="bg-gray-100 divide-y dividie-gray-200 text-dark">
-            @foreach ($users as $user)
-            <tr>
-            <td class=" px-4 py-4 whitespace-nowrap">{{ $user->names}}</td>
-            <td class=" px-4 py-4 whitespace-nowrap">{{ $user->lastnames}}</td>
-            <td class=" px-4 py-4 whitespace-nowrap">{{ $user->phone_number}}</td>
-            <td class=" px-4 py-4 whitespace-nowrap">{{ $user->email}}</td>
-            <td class=" px-4 py-4 whitespace-nowrap">
-                <button  wire:click="showUser({{$user->id}})" data-modal-target="update-user-modal" data-modal-toggle="update-user-modal" class="text-white rounded-md bg-green-900 p-3 hover:bg-opacity-90 mx-1" type="button">
-                    Editar
-                  </button>
-                <button  class=" text-white rounded-md bg-rose-900 p-3 hover:bg-opacity-90 mx-1" wire:click="delete({{$user->id}})">Eliminar</button>
-            </td>
-        </tr>
-        @endforeach
-        </tbody>
-    </table>
-<!-- Modal toggle -->
-<!-- Main modal -->
+    <div class="overflow-x-auto">
+        <table class="w-full divide-y divide-gray-200 rounded shadow-md mt-8 border-collapse table-fixed text-sm">
+            <thead class="bg-gray-500 text-white">
+                <tr>
+                    <td class="px-4 py-4 whitespace-nowrap">Nombres</td>
+                    <td class="px-4 py-4 whitespace-nowrap hidden md:table-cell">Apellidos</td>
+                    <td class="px-4 py-4 whitespace-nowrap hidden md:table-cell">Telefono</td>
+                    <td class="px-4 py-4 whitespace-nowrap hidden md:table-cell">Correo</td>
+                    <td class="px-4 py-4 whitespace-nowrap" colspan="3">Acciones</td>
+                </tr>
+            </thead>
+            <tbody class="bg-gray-100 divide-y dividie-gray-200 text-dark">
+                @foreach ($users as $user)
+                <tr @if ($user->active==0)
+                    class="bg-gray-400"
+                @endif>
+                    <td class="px-4 py-4 whitespace-nowrap">{{ $user->names }}</td>
+                    <td class="px-4 py-4 whitespace-nowrap hidden md:table-cell">{{ $user->lastnames }}</td>
+                    <td class="px-4 py-4 whitespace-nowrap hidden md:table-cell">{{ $user->phone_number }}</td>
+                    <td class="px-4 py-4 whitespace-nowrap hidden md:table-cell">{{ $user->email }}</td>
+                    <td class="px-4 py-4 whitespace-nowrap"><button  wire:click="showUser({{$user->id}})" data-modal-target="update-user-modal" data-modal-toggle="update-user-modal" class="w-full text-white rounded-md bg-green-900 p-3 hover:bg-opacity-90 mx-1" type="button">
+                        Editar
+                    </button></td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <button class="text-white rounded-md w-full    @if ($user->active==0)
+                            bg-blue-800
+                             @else
+                             bg-yellow-400
+                            @endif  p-3 hover:bg-opacity-90 mx-1" wire:click="inactivateUserModal({{ $user->id }})">
+                            @if ($user->active==0)
+                            Activar
+                             @else
+                            Desactivar
+                            @endif
+                        </button>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <button class="w-full text-white rounded-md bg-rose-900 p-3 hover:bg-opacity-90 mx-1" wire:click="deleteUserModal({{ $user->id }})">Eliminar</button>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
   <div id="update-user-modal" wire:ignore.self  tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
       <div class="relative p-4 w-full max-w-2xl max-h-full">
-          <!-- Modal content -->
           <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-              <!-- Modal header -->
               <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                 <h3 class="text-xl font-semibold text-white">
                     Actualizar Usuario
@@ -147,4 +160,56 @@
           </div>
       </div>
   </div>
+  <script>
+    document.addEventListener('livewire:initialized',()=>{
+        @this.on('delete-warning',(event)=>{
+            const data=event
+            Swal.fire({
+                title:"Eliminar",
+                icon:"warning",
+                html:`Estas a punto de eliminar el usuario: <br> <b>${data[0]['names']} ${data[0]['lastnames']} </b>`,
+                showCancelButton:true,
+                cancelButtonText:"Cancelar",
+                cancelButtonColor:"#ff0000",
+                showConfirmButton:true,
+                confirmButtonText:"Eliminar"
+            }).then((result)=>{
+                if(result.isConfirmed){
+                    @this.dispatch('delete-confirmed',{'id':data[0]['id']})
+                }
+            })
+        })
+        @this.on('inactivate-warning',(event)=>{
+            const data=event
+            Swal.fire({
+                title:"Inactivar",
+                icon:"warning",
+                html:`Estas a punto de inactivar el usuario: <br> <b>${data[0]['names']} ${data[0]['lastnames']} </b>`,
+                showCancelButton:true,
+                cancelButtonText:"Cancelar",
+                cancelButtonColor:"#ff0000",
+                showConfirmButton:true,
+                confirmButtonText:data[0]['confirmButtonText'],
+                confirmButtonColor:data[0]['confirmButtonColor']
+            }).then((result)=>{
+                if(result.isConfirmed){
+                    @this.dispatch('inactivate-confirmed',{'id':data[0]['id']})
+                }
+            })
+        })
+        @this.on('task-done',(event)=>{
+            const data=event
+            Swal.fire({
+                title:data[0]['title'],
+                icon:"success",
+                html:`<b>${data[0]['message']} </b>`,
+                showCancelButton: false,
+                confirmButtonText: "Cerrar",
+                confirmButtonColor: "#2A4BA0",
+            }).then(function(){
+                    window.location.reload();
+            })
+        })
+    })
+  </script>
 </div>
