@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
-use App\Models\user;
+use App\Models\User;
 use app\Http\Requests\RegisterRequest;
 class crudcontroller extends Controller
 {   
@@ -19,6 +19,5 @@ class crudcontroller extends Controller
         $user->password= $request->password;
     }
     public function delete(Request $request){
-        
     }
 }

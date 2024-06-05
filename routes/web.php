@@ -1,6 +1,6 @@
 <?php
-use App\http\controllers\dashboardcontroller;
-use App\http\controllers\logincontroller;
+use App\Http\Controllers\dashboardcontroller;
+use App\Http\Controllers\logincontroller;
 use App\Http\Controllers\recoverpass;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;

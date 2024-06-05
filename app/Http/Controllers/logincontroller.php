@@ -3,7 +3,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\user;
+use App\Models\User;
 class logincontroller extends Controller
 {
     public function login(){
